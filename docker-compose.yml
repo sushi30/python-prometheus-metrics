@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app-native:
+    build: .
+    container_name: app-native
+    command: ["python", "app_native.py"]
+    ports:
+      - "8000:8000"  # Expose the native metrics endpoint
+    volumes:
+      - app-logs:/var/log/app
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  app-aggregator:
+    build: .
+    container_name: app-aggregator
+    command: ["python", "app_aggregator.py"]
+    volumes:
+      - app-logs:/var/log/app
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  metrics-aggregator:
+    build: .
+    container_name: metrics-aggregator
+    command: ["python", "metrics_aggregator.py"]
+    volumes:
+      - app-logs:/var/log/app
+    ports:
+      - "8001:8001"  # Expose the aggregator metrics endpoint
+
+volumes:
+  app-logs:
+    driver: local
